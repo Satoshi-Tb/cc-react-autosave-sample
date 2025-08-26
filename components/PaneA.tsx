@@ -120,7 +120,7 @@ const PaneA: React.FC<PaneAProps> = ({ autoSaveGate }) => {
           getRowId={(row) => row.id}
           onRowClick={handleRowClick}
           processRowUpdate={handleProcessRowUpdate}
-          rowSelectionModel={selectedId ? [selectedId] : []}
+          selectionModel={selectedId ? [selectedId] : []}
           experimentalFeatures={{ newEditingApi: true }}
         />
       </Box>
