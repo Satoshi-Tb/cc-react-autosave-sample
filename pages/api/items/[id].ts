@@ -50,10 +50,6 @@ export default function handler(
     const patch: ItemPatch = req.body;
     const currentItem = items[itemIndex];
     
-    if (patch.version !== currentItem.version) {
-      return res.status(409).json({ error: 'Version conflict' });
-    }
-    
     const updatedItem: Item = {
       ...currentItem,
       ...patch,
@@ -66,10 +62,6 @@ export default function handler(
   } else if (req.method === 'PUT') {
     const putData: ItemPut = req.body;
     const currentItem = items[itemIndex];
-    
-    if (putData.version !== currentItem.version) {
-      return res.status(409).json({ error: 'Version conflict' });
-    }
     
     const updatedItem: Item = {
       ...putData,

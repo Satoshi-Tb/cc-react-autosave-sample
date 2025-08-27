@@ -1,18 +1,18 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Box, Button } from '@mui/material';
-import { DataGrid, GridColDef, GridRowModel, GridRowModesModel } from '@mui/x-data-grid';
-import { useRecoilState } from 'recoil';
+import { DataGrid, GridColDef, GridRowModel } from '@mui/x-data-grid';
 import useSWR, { mutate } from 'swr';
-import { selectedIdAtom } from '@/state/atoms';
+import { useAutosaveBus } from '@/context/AutosaveContext';
 import { apiClient } from '@/lib/apiClient';
-import type { Item, AutoSaveReason } from '@/lib/types';
+import type { Item } from '@/lib/types';
 
-interface PaneAProps {
-  autoSaveGate: (reason: AutoSaveReason) => Promise<boolean>;
+interface PaneAContextProps {
+  selectedId: string | null;
+  onSelectedIdChange: (id: string | null) => void;
 }
 
-const PaneA: React.FC<PaneAProps> = ({ autoSaveGate }) => {
-  const [selectedId, setSelectedId] = useRecoilState(selectedIdAtom);
+const PaneAContext: React.FC<PaneAContextProps> = ({ selectedId, onSelectedIdChange }) => {
+  const { saveIfDirty } = useAutosaveBus();
   
   const { data: itemsResponse } = useSWR(
     ['items'],
@@ -23,14 +23,14 @@ const PaneA: React.FC<PaneAProps> = ({ autoSaveGate }) => {
   const items = itemsResponse?.data || [];
 
   const handleRowClick = useCallback(async (params: any) => {
-    const canProceed = await autoSaveGate('A_SELECT');
+    const canProceed = await saveIfDirty();
     if (canProceed) {
-      setSelectedId(params.id);
+      onSelectedIdChange(params.id);
     }
-  }, [autoSaveGate, setSelectedId]);
+  }, [saveIfDirty, onSelectedIdChange]);
 
   const handleProcessRowUpdate = useCallback(async (newRow: GridRowModel, oldRow: GridRowModel): Promise<GridRowModel> => {
-    const canProceed = await autoSaveGate('A_EDIT_COMMIT');
+    const canProceed = await saveIfDirty();
     if (!canProceed) {
       throw new Error('自動保存が失敗したため、編集をキャンセルしました');
     }
@@ -45,25 +45,20 @@ const PaneA: React.FC<PaneAProps> = ({ autoSaveGate }) => {
       }
 
       const updatedItem = await apiClient.patchItem(newRow.id, changes);
-
       await mutate(['items']);
       return updatedItem;
     } catch (error: any) {
-      if (error.status === 409) {
-        alert('競合が発生しました');
-      } else {
-        alert(`更新に失敗しました: ${error.message}`);
-      }
+      alert(`更新に失敗しました: ${error.message}`);
       throw error;
     }
-  }, [autoSaveGate]);
+  }, [saveIfDirty]);
 
   const handleRefresh = useCallback(async () => {
-    const canProceed = await autoSaveGate('A_REFETCH');
+    const canProceed = await saveIfDirty();
     if (canProceed) {
       await mutate(['items']);
     }
-  }, [autoSaveGate]);
+  }, [saveIfDirty]);
 
   const columns: GridColDef[] = [
     {
@@ -104,7 +99,7 @@ const PaneA: React.FC<PaneAProps> = ({ autoSaveGate }) => {
   return (
     <Box p={2}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <h3>アイテム一覧</h3>
+        <h3>アイテム一覧 (Context API)</h3>
         <Button variant="outlined" onClick={handleRefresh}>
           再読み込み
         </Button>
@@ -125,4 +120,4 @@ const PaneA: React.FC<PaneAProps> = ({ autoSaveGate }) => {
   );
 };
 
-export default PaneA;
+export default PaneAContext;

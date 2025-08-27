@@ -1,25 +1,30 @@
 # React Autosave Sample
 
-Next.js v12 + React 18 + TypeScript + MUI v5 + SWR + Recoil を使用した自動保存機能のサンプルアプリケーションです。
+Next.js v12 + React 18 + TypeScript + MUI v5 + SWR を使用した左右2ペイン構成のSPAです。
+主目的は「画面Aの操作がトリガとなって画面Bの保存を同期的に発火させる自動保存機能」の検証です。
 
-## 主な機能
+## 機能
 
-- 左ペイン（画面A）: MUI DataGridによるアイテム一覧表示・編集
-- 右ペイン（画面B）: 詳細フォームでの編集
-- **自動保存機能**: 画面Aの操作時に画面Bの変更内容を自動保存
-- 競合検出・処理機能
-- Dirty状態の可視化
+このアプリケーションでは、2つの異なる方法で自動保存機能を実装しています：
+
+1. **forwardRef + useImperativeHandle 版** (`/forward-ref`)
+   - Recoil を使った状態管理
+   - forwardRef で画面間通信を実装
+
+2. **Context API 版** (`/context-api`)  
+   - Context API を使って画面間の自動保存通信を実装
+   - より軽量でシンプルな実装
 
 ## 技術スタック
 
-- **フレームワーク**: Next.js v12 (Pages Router)
-- **言語**: TypeScript
-- **UI**: Material-UI v5, DataGrid v5
-- **状態管理**: Recoil
-- **データフェッチ**: SWR
-- **API**: インメモリ実装
+- **言語**: TypeScript, React 18
+- **フレームワーク**: Next.js v12（Pages Router）
+- **UI**: MUI v5（DataGrid v5）
+- **データフェッチ**: SWR（`revalidateOnFocus: false`）
+- **グローバルステート**: Recoil (forwardRef版) / Context API (Context API版)
+- **API**: `/pages/api` にインメモリ実装でスタブ
 
-## セットアップ・起動方法
+## 起動手順
 
 ```bash
 # 依存関係のインストール
@@ -27,39 +32,14 @@ npm install
 
 # 開発サーバーの起動
 npm run dev
+
+# ブラウザでアクセス
+open http://localhost:3000/
 ```
-
-アプリケーションは http://localhost:3000 でアクセスできます。
-
-## 使用方法
-
-1. 左のDataGridでアイテムを選択
-2. 右のフォームで詳細を編集（name, status, noteフィールド）
-3. 左で行選択・セル編集・再読み込みを実行すると、右の変更内容が自動保存される
-4. 「競合を発生させる」ボタンでバージョン競合のテストが可能
 
 ## 自動保存の仕組み
 
-- forwardRef + useImperativeHandle による命令的ハンドル
-- autoSaveGate によるA操作前の同期的な保存処理
-- 競合・エラー時のA操作中断機能
-- 再入防止機構
-
-## ファイル構成
-
-```
-/pages
-  /index.tsx              # メインページ
-  /_app.tsx              # アプリケーション設定
-  /_document.tsx         # HTML文書設定
-  /api/items/            # API実装
-/components
-  /PaneA.tsx             # DataGrid（画面A）
-  /ItemDetailForm.tsx    # フォーム（画面B）
-/state
-  /atoms.ts              # Recoil atoms
-/lib
-  /types.ts              # 型定義
-  /fetcher.ts            # HTTP client
-  /apiClient.ts          # API client
-```
+- **画面A（左ペイン）**: MUI DataGridでアイテム一覧表示、行選択・セル編集が可能
+- **画面B（右ペイン）**: 選択されたアイテムの詳細編集フォーム
+- 画面Aの操作（行選択、セル編集、再読み込み）の前に、画面Bの保存処理が自動的に実行される
+- 保存に失敗した場合は、画面Aの操作がキャンセルされる
