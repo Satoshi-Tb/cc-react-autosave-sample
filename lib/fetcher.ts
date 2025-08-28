@@ -1,6 +1,6 @@
 export class ApiError extends Error {
   status: number;
-  
+
   constructor(message: string, status: number) {
     super(message);
     this.status = status;
@@ -10,7 +10,7 @@ export class ApiError extends Error {
 export const fetcher = async (url: string, options?: RequestInit) => {
   const response = await fetch(url, {
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options?.headers,
     },
     ...options,

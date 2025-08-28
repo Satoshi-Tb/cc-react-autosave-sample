@@ -1,20 +1,33 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Box, TextField, Select, MenuItem, FormControl, InputLabel, Button, Chip } from '@mui/material';
-import useSWR, { mutate } from 'swr';
-import { useAutosaveBus } from '@/context/AutosaveContext';
-import { apiClient } from '@/lib/apiClient';
-import type { Item, Saver, SaveResult } from '@/lib/types';
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import {
+  Box,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Button,
+  Chip,
+} from "@mui/material";
+import useSWR, { mutate } from "swr";
+import { useAutosaveBus } from "@/context/AutosaveContext";
+import { apiClient } from "@/lib/apiClient";
+import type { Item, Saver, SaveResult } from "@/lib/types";
 
 interface ItemDetailFormContextProps {
   selectedId: string | null;
 }
 
-const ItemDetailFormContext: React.FC<ItemDetailFormContextProps> = ({ selectedId }) => {
+const ItemDetailFormContext: React.FC<ItemDetailFormContextProps> = ({
+  selectedId,
+}) => {
   const { register } = useAutosaveBus();
-  const [localData, setLocalData] = useState<Partial<Pick<Item, 'name' | 'status' | 'note'>>>({});
-  
+  const [localData, setLocalData] = useState<
+    Partial<Pick<Item, "name" | "status" | "note">>
+  >({});
+
   const { data: serverItem } = useSWR(
-    selectedId ? ['item', selectedId] : null,
+    selectedId ? ["item", selectedId] : null,
     () => apiClient.getItem(selectedId!),
     { revalidateOnFocus: false }
   );
@@ -25,17 +38,18 @@ const ItemDetailFormContext: React.FC<ItemDetailFormContextProps> = ({ selectedI
     if (!serverItem) return false;
     return (
       (localData.name !== undefined && localData.name !== serverItem.name) ||
-      (localData.status !== undefined && localData.status !== serverItem.status) ||
+      (localData.status !== undefined &&
+        localData.status !== serverItem.status) ||
       (localData.note !== undefined && localData.note !== serverItem.note)
     );
   };
 
-  const saverRef = useRef<Saver>(async () => 'noop');
+  const saverRef = useRef<Saver>(async () => "noop");
 
   useEffect(() => {
     saverRef.current = async (): Promise<SaveResult> => {
       if (!isDirty() || !selectedId || !serverItem) {
-        return 'noop';
+        return "noop";
       }
 
       try {
@@ -48,15 +62,15 @@ const ItemDetailFormContext: React.FC<ItemDetailFormContextProps> = ({ selectedI
         };
 
         await apiClient.putItem(selectedId, putData);
-        
+
         setLocalData({});
-        await mutate(['item', selectedId]);
-        await mutate(['items']);
-        
-        return 'saved';
+        await mutate(["item", selectedId]);
+        await mutate(["items"]);
+
+        return "saved";
       } catch (error: any) {
         alert(`保存に失敗しました: ${error.message}`);
-        return 'failed';
+        return "failed";
       }
     };
   }, [selectedId, serverItem, localData, isDirty]);
@@ -72,12 +86,12 @@ const ItemDetailFormContext: React.FC<ItemDetailFormContextProps> = ({ selectedI
     setLocalData({});
   }, [selectedId]);
 
-  const handleChange = (field: keyof Pick<Item, 'name' | 'status' | 'note'>) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = event.target.value;
-    setLocalData(prev => ({ ...prev, [field]: value }));
-  };
+  const handleChange =
+    (field: keyof Pick<Item, "name" | "status" | "note">) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      setLocalData((prev) => ({ ...prev, [field]: value }));
+    };
 
   const handleSave = async () => {
     await saverRef.current();
@@ -93,36 +107,40 @@ const ItemDetailFormContext: React.FC<ItemDetailFormContextProps> = ({ selectedI
         <h3>詳細フォーム (Context API) (ID: {selectedId})</h3>
         {isDirty() && <Chip label="Dirty" color="warning" size="small" />}
       </Box>
-      
+
       <Box display="flex" flexDirection="column" gap={2}>
         <TextField
           label="Name"
-          value={displayItem.name || ''}
-          onChange={handleChange('name')}
+          value={displayItem.name || ""}
+          onChange={handleChange("name")}
           fullWidth
         />
-        
+
         <FormControl fullWidth>
           <InputLabel>Status</InputLabel>
           <Select
-            value={displayItem.status || 'A'}
-            onChange={(e) => handleChange('status')({ target: { value: e.target.value } } as any)}
+            value={displayItem.status || "A"}
+            onChange={(e) =>
+              handleChange("status")({
+                target: { value: e.target.value },
+              } as any)
+            }
             label="Status"
           >
             <MenuItem value="A">A</MenuItem>
             <MenuItem value="B">B</MenuItem>
           </Select>
         </FormControl>
-        
+
         <TextField
           label="Note"
-          value={displayItem.note || ''}
-          onChange={handleChange('note')}
+          value={displayItem.note || ""}
+          onChange={handleChange("note")}
           multiline
           rows={4}
           fullWidth
         />
-        
+
         <Box display="flex" gap={1}>
           <Button variant="contained" onClick={handleSave}>
             保存

@@ -1,12 +1,15 @@
-import { atom, atomFamily } from 'recoil';
-import type { Item } from '@/lib/types';
+import { atom, atomFamily } from "recoil";
+import type { Item } from "@/lib/types";
 
 export const selectedIdAtom = atom<string | null>({
-  key: 'selectedId',
+  key: "selectedId",
   default: null,
 });
 
-export const draftByIdAtomFamily = atomFamily<Partial<Item> | undefined, string>({
-  key: 'draftById',
+export const draftByIdAtomFamily = atomFamily<
+  Partial<Item> | undefined,
+  string
+>({
+  key: "draftById",
   default: undefined,
 });

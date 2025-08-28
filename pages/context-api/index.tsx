@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Box, Container, Grid, Button } from '@mui/material';
-import { SWRConfig } from 'swr';
-import Link from 'next/link';
-import { AutosaveProvider } from '@/context/AutosaveContext';
-import PaneAContext from '@/components/context/PaneAContext';
-import ItemDetailFormContext from '@/components/context/ItemDetailFormContext';
+import React, { useState } from "react";
+import { Box, Container, Grid, Button } from "@mui/material";
+import { SWRConfig } from "swr";
+import Link from "next/link";
+import { AutosaveProvider } from "@/context/AutosaveContext";
+import PaneAContext from "@/components/context/PaneAContext";
+import ItemDetailFormContext from "@/components/context/ItemDetailFormContext";
 
 const ContextApiPage: React.FC = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -22,17 +22,27 @@ const ContextApiPage: React.FC = () => {
                 </Button>
               </Link>
             </Box>
-            <Grid container spacing={2} sx={{ height: '80vh' }}>
+            <Grid container spacing={2} sx={{ height: "80vh" }}>
               <Grid item xs={6}>
-                <Box border={1} borderColor="grey.300" borderRadius={1} height="100%">
-                  <PaneAContext 
+                <Box
+                  border={1}
+                  borderColor="grey.300"
+                  borderRadius={1}
+                  height="100%"
+                >
+                  <PaneAContext
                     selectedId={selectedId}
                     onSelectedIdChange={setSelectedId}
                   />
                 </Box>
               </Grid>
               <Grid item xs={6}>
-                <Box border={1} borderColor="grey.300" borderRadius={1} height="100%">
+                <Box
+                  border={1}
+                  borderColor="grey.300"
+                  borderRadius={1}
+                  height="100%"
+                >
                   <ItemDetailFormContext selectedId={selectedId} />
                 </Box>
               </Grid>
