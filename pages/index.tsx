@@ -31,6 +31,15 @@ const HomePage: React.FC = () => {
           <Typography variant="body2" color="textSecondary" ml={2}>
             Context API を使って画面間の自動保存通信を実装
           </Typography>
+          
+          <Link href="/parent-child-window/parent" passHref>
+            <Button variant="contained" size="large" component="a" color="success">
+              親子ウィンドウ postMessage 版
+            </Button>
+          </Link>
+          <Typography variant="body2" color="textSecondary" ml={2}>
+            postMessage API を使った親子ウィンドウ間での同期的な保存処理通信
+          </Typography>
         </Box>
       </Box>
     </Container>
